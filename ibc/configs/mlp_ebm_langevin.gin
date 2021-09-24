@@ -1,0 +1,70 @@
+# coding=utf-8
+# Copyright 2021 The Reach ML Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+train_eval.root_dir = '/tmp/ibc/mlp_ebm'
+train_eval.loss_type = 'ebm' # specifies we are training ebm.
+train_eval.network = 'MLPEBM'
+train_eval.batch_size = 512
+ImplicitBCAgent.num_counter_examples = 8
+train_eval.num_iterations = 100000
+train_eval.replay_capacity = 10000
+train_eval.eval_interval = 5000
+train_eval.eval_episodes = 10
+train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
+train_eval.learning_rate = 1e-3
+train_eval.goal_tolerance = 0.02
+train_eval.seed = 0
+train_eval.sequence_length = 2
+train_eval.dataset_eval_fraction = 0.0
+
+IbcPolicy.num_action_samples = 512
+train_eval.uniform_boundary_buffer = 0.05
+get_normalizers.nested_obs = True  # BlockPushing has nested
+compute_dataset_statistics.min_max_actions = True
+
+IbcPolicy.use_dfo = False
+IbcPolicy.use_langevin = True
+IbcPolicy.optimize_again = True
+
+# Configs for cloning net.
+MLPEBM.layers = 'ResNetPreActivation'
+MLPEBM.width = 128
+MLPEBM.depth = 16
+MLPEBM.rate = 0.0
+MLPEBM.dense_layer_type = 'regular'
+MLPEBM.activation = 'relu'
+ImplicitBCAgent.ebm_loss_type = 'cpc'
+ImplicitBCAgent.compute_mse = True
+ResNetLayer.normalizer = None
+
+
+grad_penalty.grad_margin = 1.0
+grad_penalty.only_apply_final_grad_penalty = True # Note:
+# we actually get slightly better results with this as False,
+# however we get an OOM with it as False.  TODO(peteflorence,oars):
+# investigate if can lessen memory.
+ImplicitBCAgent.run_full_chain_under_gradient = True
+
+
+# Config for eval.
+continuous_eval.experiment_dir = '/tmp/ibc/mlp_ebm'
+continuous_eval.eval_log_dir = '/tmp/ibc/mlp_ebm'
+continuous_eval.num_episodes = 5
+continuous_eval.sequence_length = 2
+continuous_eval.max_train_step = 500000
+continuous_eval.goal_tolerance = 0.02
+
+langevin_actions_given_obs.num_iterations = 50
+ImplicitBCAgent.fraction_langevin_samples = 1.0

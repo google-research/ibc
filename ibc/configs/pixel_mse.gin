@@ -1,0 +1,38 @@
+# coding=utf-8
+# Copyright 2021 The Reach ML Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+train_eval.root_dir = '/tmp/ibc/pixel_mse'
+train_eval.loss_type = 'mse' # specifies we are training ebm.
+train_eval.network = 'ConvMLPMSE'
+train_eval.batch_size = 64
+train_eval.num_iterations = 50000
+train_eval.replay_capacity = 4096
+train_eval.eval_interval = 5000
+train_eval.eval_episodes = 10
+train_eval.dataset_path = '/tmp/ibc/push_rgb_2k_lowres/*.tfrecord'
+train_eval.learning_rate = 1e-3
+train_eval.goal_tolerance = 0.02
+train_eval.seed = 0
+train_eval.sequence_length = 2
+train_eval.image_obs = True # For block pushing at least.
+train_eval.dataset_eval_fraction = 0.0
+get_normalizers.nested_obs = True
+
+# # Configs for cloning net.
+ConvMLPMSE.layers = 'MLPDropout'
+ConvMLPMSE.width = 512
+ConvMLPMSE.depth = 2
+ConvMLPMSE.rate = 0.1
+ConvMLPMSE.coord_conv = True
