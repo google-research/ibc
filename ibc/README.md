@@ -2,6 +2,7 @@ All scripts are expected to be run from the ibc directory. e.g.:
 
 ```
 cd <path_to>/ibc
+
 # Then run commands below.
 ```
 
@@ -29,7 +30,7 @@ EBM:
   --mode=train \
   --task=PUSH \
   --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
-  --gin_bindings="train_eval.dataset_path='/tmp/blocks/dataset/oracle_push*.tfrecord'" \
+  --train_dataset_glob="/tmp/blocks/dataset/oracle_push*.tfrecord" \
   --train_gin_file=mlp_ebm_langevin.gin \
   --train_tag=name_this_experiment
 ```
@@ -41,7 +42,7 @@ MDN:
   --mode=train \
   --task=PUSH \
   --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
-  --gin_bindings="train_eval.dataset_path='/tmp/blocks/dataset/oracle_push*.tfrecord'" \
+  --train_dataset_glob="/tmp/blocks/dataset/oracle_push*.tfrecord" \
   --train_gin_file=mlp_mdn.gin \
   --train_tag=name_this_experiment
 ```
@@ -63,24 +64,8 @@ To generate lots of data on default 2D, run the following
   --eval_use_image_obs=False
 ```
 
-To do n-dimensonal, run, for example for 3d:
-
-```
-./ibc/main.sh \
-  --mode=eval \
-  --eval_num_episodes=200 \
-  --eval_policy=particle_green_then_blue \
-  --task=PARTICLE \
-  --eval_dataset_path=/tmp/particle/dataset/oracle_particle.tfrecord \
-  --eval_replicas=10  \
-  --eval_use_image_obs=False \
-  --gin_bindings="ParticleEnv.n_dim=3"
-```
-
-TODO(tompson): The above does not run in exported code.
 
 ### Run Train Eval:
-
 
 EBM:
 
@@ -89,7 +74,7 @@ EBM:
   --mode=train \
   --task=PARTICLE \
   --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
-  --gin_bindings="train_eval.dataset_path='/tmp/particle/dataset/oracle_particle*.tfrecord'" \
+  --train_dataset_glob="/tmp/particle/dataset/oracle_particle*.tfrecord" \
   --train_gin_file=mlp_ebm.gin \
   --train_tag=name_this_experiment
 ```
@@ -101,9 +86,25 @@ MSE:
   --mode=train \
   --task=PARTICLE \
   --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
-  --gin_bindings="train_eval.dataset_path='/tmp/particle/dataset/oracle_particle*.tfrecord'" \
+  --train_dataset_glob="/tmp/particle/dataset/oracle_particle*.tfrecord" \
   --train_gin_file=mlp_mse.gin \
   --train_tag=name_this_experiment
 ```
 
-TODO(tompson): Add examples for d4rl.
+## Running on D4RL.
+
+
+### Run Train Eval:
+
+EBM:
+
+```
+# pen-human-v0
+./ibc/main.sh \
+  --mode=train \
+  --task=pen-human-v0 \
+  --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
+  --train_dataset_glob="$(pwd)/data/d4rl_trajectories/pen-human-v0/*.tfrecord" \
+  --train_gin_file=mlp_ebm.gin \
+  --train_tag=name_this_experiment
+```

@@ -24,9 +24,10 @@ pip install \
   pybullet==3.1.6 \
   tensorflow==2.6.0 \
   tensorflow-probability==0.13.0 \
-  tf-agents-nightly==0.10.0.dev20210914 \
+  tf-agents-nightly==0.10.0.dev20210930 \
   tqdm==4.62.2
 ```
+
 
 For mujoco / D4RL support, you also need to install:
 

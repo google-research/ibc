@@ -22,7 +22,6 @@ source gbash.sh || exit 1
 DEFINE_array task --type=string --delim="," "PUSH" "Choose tasks."
 DEFINE_array gin_bindings --type=string --delim="," "" "Additional gin bindings."
 DEFINE_bool rm_logdir false "Whether to rm previous logdir."
-DEFINE_bool use_debug_data true "Whether to use debug data when training locally, else use --dataset_glob."
 DEFINE_string mode "" "can be: {'train', 'eval'}."
 
 # Training arguments.
@@ -77,13 +76,8 @@ if [[ "$FLAGS_mode" == "train" ]]; then
     rm -rf /tmp/ebm
   fi
   # Which local data to train on.
-  if (( FLAGS_use_debug_data )); then
-    LOCAL_DATA=$ROOT/test_data/${FLAGS_task}/*.tfrecord
-    echo "Using debug data at $LOCAL_DATA."
-  else
-    LOCAL_DATA="${FLAGS_train_dataset_glob}"
-    echo "Using your data at $LOCAL_DATA."
-  fi
+  LOCAL_DATA="${FLAGS_train_dataset_glob}"
+  echo "Using your data at $LOCAL_DATA."
 
   RUN_CMD "${train_eval_exec} \
   --gin_file=\"${TRAIN_GIN_FILE}\" \
