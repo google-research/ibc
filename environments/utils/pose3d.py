@@ -27,9 +27,9 @@ class NoCopyAsDict(object):
   def asdict(self):
     """Replacement for dataclasses.asdict.
 
-    TF Dataset does not handle dataclasses.asdict. //third_party/py/dataclasses
-    uses copy.deepcopy when setting values in the output dict. This causes
-    issues with tf.Dataset. Instead, shallow copy contents.
+    TF Dataset does not handle dataclasses.asdict, which uses copy.deepcopy when
+    setting values in the output dict. This causes issues with tf.Dataset.
+    Instead, shallow copy contents.
 
     Returns:
       dict containing contents of dataclass.
