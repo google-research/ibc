@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/pixel_mdn'
+train_eval.root_dir = '/tmp/ibc_logs/pixel_mdn'
 train_eval.loss_type = 'mdn' # specifies we are training mdn.
 train_eval.network = 'ConvMLPMDN'
 # TODO(peteflorence: can we do larger batch?)
@@ -22,7 +22,6 @@ train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
 train_eval.eval_episodes = 10
-train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
@@ -41,11 +40,3 @@ ConvMLPMDN.num_components = 26
 ConvMLPMDN.training_temperature = .5
 ConvMLPMDN.test_temperature = 1.0
 ConvMLPMDN.test_variance_exponent = 4.0
-
-# Config for eval.
-continuous_eval.experiment_dir = '/tmp/ibc/conv_mlp_ebm'
-continuous_eval.eval_log_dir = '/tmp/ibc/conv_mlp_ebm'
-continuous_eval.num_episodes = 5
-continuous_eval.sequence_length = 2
-continuous_eval.max_train_step = 500000
-continuous_eval.goal_tolerance = 0.02

@@ -18,11 +18,11 @@
 import tensorflow as tf
 
 
-def cpc(predictions,
-        batch_size,
-        num_counter_examples,
-        softmax_temperature,
-        kl):
+def info_nce(predictions,
+             batch_size,
+             num_counter_examples,
+             softmax_temperature,
+             kl):
   """EBM loss: can you classify the correct example?
 
   Args:

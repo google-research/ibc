@@ -13,15 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/mlp_ebm'
+train_eval.root_dir = '/tmp/ibc_logs/mlp_ebm'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'MLPEBM'
 train_eval.batch_size = 512
 train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
-train_eval.eval_episodes = 10
-train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
+train_eval.eval_episodes = 100
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
@@ -41,15 +40,6 @@ MLPEBM.width = 128
 MLPEBM.depth = 16
 MLPEBM.rate = 0.0
 ResNetLayer.normalizer = None
-
-
-# Config for eval.
-continuous_eval.experiment_dir = '/tmp/ibc/mlp_ebm'
-continuous_eval.eval_log_dir = '/tmp/ibc/mlp_ebm'
-continuous_eval.num_episodes = 5
-continuous_eval.sequence_length = 2
-continuous_eval.max_train_step = 500000
-continuous_eval.goal_tolerance = 0.02
 
 
 # Need to not use langevin samples in agent or policy

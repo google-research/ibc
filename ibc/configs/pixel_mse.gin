@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/pixel_mse'
+train_eval.root_dir = '/tmp/ibc_logs/pixel_mse'
 train_eval.loss_type = 'mse' # specifies we are training ebm.
 train_eval.network = 'ConvMLPMSE'
 train_eval.batch_size = 64
@@ -21,7 +21,6 @@ train_eval.num_iterations = 50000
 train_eval.replay_capacity = 4096
 train_eval.eval_interval = 5000
 train_eval.eval_episodes = 10
-train_eval.dataset_path = '/tmp/ibc/push_rgb_2k_lowres/*.tfrecord'
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0

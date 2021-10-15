@@ -13,21 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/mlp_mse'
+train_eval.root_dir = '/tmp/ibc_logs/mlp_mse'
 train_eval.loss_type = 'mse' # specifies we are training mse.
 train_eval.network = 'MLPMSE'
 train_eval.batch_size = 512
 
 train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
-train_eval.eval_interval = 10000
+train_eval.eval_interval = 5000
 train_eval.eval_episodes = 100
-train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
 
 get_normalizers.nested_obs = True  # BlockPushing has nested
 
 # Configs for cloning net.
-MLPMSE.layers = 'MLPDropout'
-MLPMSE.width = 512
-MLPMSE.depth = 2
+MLPMSE.layers = 'ResNetPreActivation'
+MLPMSE.width = 128
+MLPMSE.depth = 16
 MLPMSE.rate = 0.1

@@ -16,12 +16,10 @@
 # Launches training or oracle eval.
 # See ibc/ibc/README.md for usage examples.
 
-source gbash.sh || exit 1
 
 # Choose config.
 DEFINE_array task --type=string --delim="," "PUSH" "Choose tasks."
 DEFINE_array gin_bindings --type=string --delim="," "" "Additional gin bindings."
-DEFINE_bool rm_logdir false "Whether to rm previous logdir."
 DEFINE_string mode "" "can be: {'train', 'eval'}."
 
 # Training arguments.
@@ -36,7 +34,6 @@ DEFINE_string eval_dataset_path "" "Where to store the rollout data."
 DEFINE_int eval_replicas 1 "How many replicas to use when doing eval."
 DEFINE_bool eval_use_image_obs false "If True, store image observations in output dataset."
 
-gbash::init_google "$@"
 
 set -uexo pipefail
 
@@ -70,27 +67,14 @@ policy_eval_exec="PYTHONPATH=${updated_python_path} python3 ${script_dir}/../dat
 cd "${outer_dir}"
 
 if [[ "$FLAGS_mode" == "train" ]]; then
-
-  if (( FLAGS_rm_logdir )); then
-    echo "Deleting previous local training dir."
-    rm -rf /tmp/ebm
-  fi
   # Which local data to train on.
-  LOCAL_DATA="${FLAGS_train_dataset_glob}"
-  echo "Using your data at $LOCAL_DATA."
-
   RUN_CMD "${train_eval_exec} \
   --gin_file=\"${TRAIN_GIN_FILE}\" \
   ${task_flags[@]} \
   --skip_eval=False \
   --tag=${FLAGS_train_tag} \
   --add_time=True \
-  --gin_bindings=\"train_eval.root_dir='/tmp/ebm'\" \
-  --gin_bindings=\"train_eval.batch_size=4\" \
-  --gin_bindings=\"train_eval.eval_interval=4\" \
-  --gin_bindings=\"train_eval.eval_episodes=2\" \
-  --gin_bindings=\"ImplicitBehavioralCloningAgent.num_counter_examples=8\" \
-  --gin_bindings=\"train_eval.dataset_path='${LOCAL_DATA}'\" \
+  --gin_bindings=\"train_eval.dataset_path='${FLAGS_train_dataset_glob}'\" \
   ${gin_bindings[@]} \
   --alsologtostderr"
 

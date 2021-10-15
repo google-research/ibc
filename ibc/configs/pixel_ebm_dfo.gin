@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/conv_mlp_ebm'
+train_eval.root_dir = '/tmp/ibc_logs/conv_mlp_ebm'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'PixelEBM'
 # TODO(peteflorence: can we do larger batch?)
@@ -22,7 +22,6 @@ train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
 train_eval.eval_episodes = 10
-train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0

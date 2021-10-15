@@ -56,7 +56,7 @@ class ImplicitBCAgent(base_agent.BehavioralCloningAgent):
                name = None,
                fraction_dfo_samples=0.,
                fraction_langevin_samples=1.0,
-               ebm_loss_type='cpc',
+               ebm_loss_type='info_nce',
                late_fusion=False,
                compute_mse=False,
                run_full_chain_under_gradient=False,
@@ -113,7 +113,7 @@ class ImplicitBCAgent(base_agent.BehavioralCloningAgent):
         obs_norm_layer=self._obs_norm_layer,
         act_denorm_layer=self._act_denorm_layer,
     )
-    if self.ebm_loss_type == 'cpc':
+    if self.ebm_loss_type == 'info_nce':
       self._kl = tf.keras.losses.KLDivergence(
           reduction=tf.keras.losses.Reduction.NONE)
 
@@ -306,11 +306,10 @@ class ImplicitBCAgent(base_agent.BehavioralCloningAgent):
       counter_example_actions,  # [B x n x act_spec]
       expanded_actions,  # [B x 1 x act_spec]
       grad_flow_network_inputs):
-    if self.ebm_loss_type == 'cpc':
-      per_example_loss, debug_dict = ebm_loss.cpc(predictions, batch_size,
-                                                  self._num_counter_examples,
-                                                  self._softmax_temperature,
-                                                  self._kl)
+    if self.ebm_loss_type == 'info_nce':
+      per_example_loss, debug_dict = ebm_loss.info_nce(
+          predictions, batch_size, self._num_counter_examples,
+          self._softmax_temperature, self._kl)
     elif self.ebm_loss_type == 'cd':
       per_example_loss, debug_dict = ebm_loss.cd(predictions)
     elif self.ebm_loss_type == 'cd_kl':

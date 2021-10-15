@@ -13,24 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc/mlp_mdn'
+train_eval.root_dir = '/tmp/ibc_logs/mlp_mdn'
 train_eval.loss_type = 'mdn'
 train_eval.network = 'MLPMDN'
 train_eval.batch_size = 512
 
 train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
-train_eval.eval_interval = 10000
+train_eval.eval_interval = 5000
 train_eval.eval_episodes = 100
-train_eval.dataset_path = '/tmp/blocks/dataset/*.tfrecord'
 
 get_normalizers.nested_obs = True  # BlockPushing has nested
 
 # Configs for cloning net.
-MLPMDN.layers = 'MLPDropout'
-MLPMDN.width = 512
-MLPMDN.depth = 2
+MLPMDN.layers = 'ResNetPreActivation'
+MLPMDN.width = 128
+MLPMDN.depth = 16
 MLPMDN.rate = 0.1
+
 MLPMDN.num_components = 26
 MLPMDN.training_temperature = .5
 MLPMDN.test_temperature = 1.0
