@@ -21,7 +21,7 @@ train_eval.batch_size = 512
 train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
-train_eval.eval_episodes = 100
+train_eval.eval_episodes = 20
 
 get_normalizers.nested_obs = True  # BlockPushing has nested
 

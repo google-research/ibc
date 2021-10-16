@@ -550,8 +550,15 @@ class BlockPush(gym.Env):
     return self._compute_goal_distance(state)
 
   def render(self, mode='rgb_array'):
+    if self._image_size is not None:
+      image_size = self._image_size
+    else:
+      # This allows rendering even for state-only obs,
+      # for visualization.
+      image_size = (IMAGE_HEIGHT, IMAGE_WIDTH)
+
     return self._render_camera(
-        image_size=(self._image_size[0], self._image_size[1]))
+        image_size=(image_size[0], image_size[1]))
 
   def close(self):
     self._pybullet_client.disconnect()

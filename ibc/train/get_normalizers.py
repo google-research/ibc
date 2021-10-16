@@ -53,7 +53,8 @@ def get_normalizers(train_data,
                     env_name,
                     nested_obs=False,
                     nested_actions=False,
-                    num_batches=100):
+                    num_batches=100,
+                    num_samples=None):
   """Computes stats and creates normalizer layers from stats."""
   statistics_dataset = train_data
 
@@ -66,12 +67,17 @@ def get_normalizers(train_data,
       drop_info_and_float_cast,
       num_parallel_calls=tf.data.experimental.AUTOTUNE).prefetch(100)
 
+  # You can either ask for num_batches (by default, used originally),
+  # or num_samples (which doesn't penalize you for using bigger batches).
+  if num_samples is None:
+    num_samples = num_batches * batch_size
+
   # Create observation and action normalization layers.
   (obs_norm_layer, act_norm_layer, act_denorm_layer,
    min_actions, max_actions) = (
        stats.compute_dataset_statistics(
            statistics_dataset,
-           num_samples=num_batches * batch_size,
+           num_samples=num_samples,
            nested_obs=nested_obs,
            nested_actions=nested_actions))
 

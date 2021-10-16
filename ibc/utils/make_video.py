@@ -20,7 +20,7 @@ from absl import logging
 try:
   from ibc.ibc.utils import mp4_video_wrapper  # pylint: disable=g-import-not-at-top
 except ImportError:
-  print('WARNING: video creation not supported.')
+  from ibc.ibc.utils import oss_mp4_video_wrapper as mp4_video_wrapper  # pylint: disable=g-import-not-at-top
 from ibc.ibc.utils import strategy_policy  # pylint: disable=g-import-not-at-top
 from tf_agents.drivers import py_driver
 
