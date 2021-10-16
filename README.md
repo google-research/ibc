@@ -218,7 +218,9 @@ python3 ibc/data/policy_eval.py -- \
 Or we can download data from the web:
 
 ```
-wget # TBD location on the web for the datasets
+cd data/
+wget https://storage.googleapis.com/brain-reach-public/ibc_data/block_push_states_location.zip
+unzip 'block_push_states_location.zip'
 ```
 
 For **IBC** train+eval:
@@ -230,7 +232,7 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PUSH \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='/tmp/blocks/dataset/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
 ```
 
 For **MSE** train+eval:
@@ -242,7 +244,7 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PUSH \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='/tmp/blocks/dataset/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
 ```
 
 For **MDN** train+eval:
@@ -254,10 +256,18 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PUSH \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='/tmp/blocks/dataset/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
 ```
 
 ### Task: Block Pushing (from image observations)
+
+Download data from the web:
+
+```
+cd data/
+wget https://storage.googleapis.com/brain-reach-public/ibc_data/block_push_visual_location.zip
+unzip 'block_push_visual_location.zip'
+```
 
 ### Task: Particle
 
@@ -281,7 +291,9 @@ TODO(peteflorence): this should be settable in gin once this commit lands in a t
 Or download all the data:
 
 ```
-wget # TBD location on the web for the datasets
+cd data/
+wget https://storage.googleapis.com/brain-reach-public/ibc_data/particle.zip
+unzip particle.zip
 ```
 
 For **IBC** train+eval, the following trains at about 21 steps/sec on a GTX 2080 Ti, and an example training run gets to about ~100% success in 5,000 steps (roughly 5 minutes):
@@ -293,13 +305,27 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PARTICLE \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='/tmp/particle/dataset/2d_oracle_particle*.tfrecord'" \
+  --gin_bindings="train_eval.dataset_path='ibc/data/particle/2d_oracle_particle*.tfrecord'" \
   --gin_bindings="ParticleEnv.n_dim=2"
 ```
 
 
 ### Task: D4RL Adroit and Kitchen
 
+
+The D4RL human demonstration training data used for the paper submission can be downloaded using:
+
+```
+cd data/d4rl_trajectories/
+wget https://storage.googleapis.com/brain-reach-public/ibc_data/door-human-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/hammer-human-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/kitchen-complete-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/kitchen-mixed-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/kitchen-partial-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/pen-human-v0.zip \
+     https://storage.googleapis.com/brain-reach-public/ibc_data/relocate-human-v0.zip
+unzip '*.zip'
+```
 
 ### Run Train Eval:
 
