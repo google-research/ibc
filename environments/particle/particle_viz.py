@@ -35,13 +35,26 @@ def make_vector_traj(log):
 def visualize_2d(
     obs_log, act_log, ax=None, fig=None, show=False, last_big=False):
   """If the environment is 2d, render a top-down image."""
+
+  # Assert it's 2D
   assert len(obs_log[0]['pos_agent']) == 2
+
   if ax is None:
     fig, ax = plt.subplots()
-  # Visualize actions.
-  act_traj = make_vector_traj(act_log)
-  ax.scatter(
-      act_traj[:, 0], act_traj[:, 1], marker='x', s=100, alpha=0.1, color='red')
+    ax.set_aspect('equal')
+    ax.set_xlim(0., 1.)
+    ax.set_ylim(0., 1.)
+
+  # Since when render is called we don't know what the actions will be,
+  # We may need to ignore the last obs.
+  if len(obs_log) != len(act_log):
+    if len(obs_log) == len(act_log) + 1:
+      obs_log_ = obs_log[:-1]
+    else:
+      raise ValueError('Wrong length logs.')
+  else:
+    obs_log_ = obs_log
+
   # Visualize observations.
   pos_first_goal = obs_log[0]['pos_first_goal']
   ax.add_patch(plt.Circle(
@@ -49,20 +62,27 @@ def visualize_2d(
   pos_second_goal = obs_log[0]['pos_second_goal']
   ax.add_patch(plt.Circle(
       (pos_second_goal[0], pos_second_goal[1]), 0.01, color='b'))
-  for i in range(len(obs_log)-1):
-    alpha = float(i)/len(obs_log)
-    pos_agent_k = obs_log[i]['pos_agent']
-    pos_agent_kplus1 = obs_log[i+1]['pos_agent']
+
+  # Now obs_log_ might be empty, in which case return.
+  if not obs_log_:
+    return fig, ax
+
+  # Visualize actions.
+  act_traj = make_vector_traj(act_log)
+  ax.scatter(
+      act_traj[:, 0], act_traj[:, 1], marker='x', s=100, alpha=0.1, color='red')
+
+  for i in range(len(obs_log_)-1):
+    alpha = float(i)/len(obs_log_)
+    pos_agent_k = obs_log_[i]['pos_agent']
+    pos_agent_kplus1 = obs_log_[i+1]['pos_agent']
     pos_agent_2step = np.stack((pos_agent_k, pos_agent_kplus1))
     ax.plot(pos_agent_2step[:, 0], pos_agent_2step[:, 1],
             alpha=alpha, linestyle=':', color='black')
   if last_big:
-    ax.scatter(obs_log[-1]['pos_agent'][0], obs_log[-1]['pos_agent'][1],
+    ax.scatter(obs_log_[-1]['pos_agent'][0], obs_log_[-1]['pos_agent'][1],
                marker='o', s=50, color='black')
     ax.scatter(act_traj[-1, 0], act_traj[-1, 1], marker='x', color='red', s=100)
-  ax.set_aspect('equal')
-  ax.set_xlim(0., 1.)
-  ax.set_ylim(0., 1.)
   if show:
     plt.show()
   return fig, ax
@@ -78,7 +98,7 @@ def visualize_nd(obs_log, act_log, axes=None, fig=None, show=True,
       raise ValueError('Wrong length logs.')
   else:
     obs_log_ = obs_log
-  dims = act_log[0]['pos_setpoint'].shape[0]
+  dims = obs_log[0]['pos_agent'].shape[0]
   if axes is None:
     fig, axes = plt.subplots(dims, figsize=(12, 2*dims))
     if dims == 1:
@@ -87,6 +107,11 @@ def visualize_nd(obs_log, act_log, axes=None, fig=None, show=True,
     _ = [ax.set_xlim(xlim) for ax in axes]
   if ylim is not None:
     _ = [ax.set_ylim(ylim) for ax in axes]
+
+  _ = [ax.set(xlabel='time', ylabel='position') for ax in axes]
+  if not act_log:
+    return fig, axes
+
   obs_traj = make_vector_traj(obs_log_)
   act_traj = make_vector_traj(act_log)
   for i in range(dims):
@@ -119,7 +144,6 @@ def visualize_nd(obs_log, act_log, axes=None, fig=None, show=True,
                       marker='o', s=50, color='b')
       axes[i].scatter(len(obs_log_), act_traj[-1, i],
                       marker='x', s=100, color='red')
-  _ = [ax.set(xlabel='time', ylabel='position') for ax in axes]
   if show:
     plt.legend()
     plt.show()

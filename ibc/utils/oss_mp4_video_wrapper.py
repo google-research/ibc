@@ -66,14 +66,13 @@ class OssMp4VideoRecorder():
     self.vid_writer = None
     basedir = os.path.dirname(self.filepath)
     if not os.path.isdir(basedir):
-      os.system('mkdir -p ' + basedir)
+      os.system("mkdir -p " + basedir)
+    self.last_frame = None  # buffer so we don't write the last one.
 
   def init_vid_writer(self, width, height):
-    self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    self.vid_writer = cv2.VideoWriter(self.filepath,
-                                      self.fourcc,
-                                      self.frame_rate,
-                                      (width, height))
+    self.fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    self.vid_writer = cv2.VideoWriter(self.filepath, self.fourcc,
+                                      self.frame_rate, (width, height))
 
   def add_frame(self, frame):
     """Adds a frame to the video recorder.
@@ -96,7 +95,9 @@ class OssMp4VideoRecorder():
 
     # :facepalm: why did opencv ever choose BGR?
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-    self.vid_writer.write(frame)
+    if self.last_frame is not None:
+      self.vid_writer.write(self.last_frame)
+    self.last_frame = frame
 
   def end_video(self):
     """Closes the video recorder and writes the frame buffer to disk."""

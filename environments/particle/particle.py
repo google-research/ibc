@@ -228,6 +228,18 @@ class ParticleEnv(gym.Env):
     reward = self._get_reward(done)
     return state, reward, done, {}
 
+  def render(self, mode='rgb_array'):
+    fig = plt.figure()
+    fig.add_subplot(111)
+    if self.n_dim == 2:
+      fig, _ = particle_viz.visualize_2d(self.obs_log, self.act_log)
+    else:
+      fig, _ = particle_viz.visualize_nd(self.obs_log, self.act_log)
+    fig.canvas.draw()
+    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    return data
+
   def set_img_save_dir(self, summary_dir):
     self.img_save_dir = os.path.join(summary_dir, 'imgs')
     os.makedirs(self.img_save_dir, exist_ok=True)

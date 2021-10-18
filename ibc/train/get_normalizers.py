@@ -81,11 +81,6 @@ def get_normalizers(train_data,
            nested_obs=nested_obs,
            nested_actions=nested_actions))
 
-  nested_norm_layers = obs_norm_layer.nested_layers
-  if 'instruction' in nested_norm_layers:
-    nested_norm_layers['instruction'] = stats.IdentityLayer(cast_dtype=tf.int32)
-    obs_norm_layer = nest_map.NestMap(nested_norm_layers)
-
   # Define a function used to normalize training data inside a tf.data .map().
   def norm_train_data_fn(obs_and_act, nothing):
     obs = obs_and_act[0]

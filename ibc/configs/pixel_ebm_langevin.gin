@@ -61,7 +61,7 @@ grad_penalty.only_apply_final_grad_penalty = True # Note:
 ImplicitBCAgent.run_full_chain_under_gradient = True
 
 
-langevin_actions_given_obs.num_iterations = 50
+langevin_actions_given_obs.num_iterations = 100
 
 # Need to not use langevin samples in agent or policy
 ImplicitBCAgent.compute_mse = True

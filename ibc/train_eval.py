@@ -280,7 +280,7 @@ def train_eval(
         all_metrics.append(metrics)
 
         # Need to special-case for kitchen, since rendering doesn't work.
-        if FLAGS.video and 'kitchen' not in task and 'PARTICLE' not in task:
+        if FLAGS.video and 'kitchen' not in task:
           # Write one eval video.
           video_module.make_video(
               agent,

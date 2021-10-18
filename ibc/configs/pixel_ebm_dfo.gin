@@ -16,7 +16,6 @@
 train_eval.root_dir = '/tmp/ibc_logs/conv_mlp_ebm'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'PixelEBM'
-# TODO(peteflorence: can we do larger batch?)
 train_eval.batch_size = 128
 train_eval.num_iterations = 50000
 train_eval.replay_capacity = 10000
@@ -31,9 +30,8 @@ train_eval.image_obs = True
 get_normalizers.nested_obs = True
 
 # Config for sampling actions.
-# TODO(peteflorence): can we do smaller nce?
 ImplicitBCAgent.num_counter_examples = 256  # training.
-IbcPolicy.num_action_samples = 1024
+IbcPolicy.num_action_samples = 2048
 train_eval.uniform_boundary_buffer = 0.05
 
 

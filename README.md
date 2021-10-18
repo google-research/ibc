@@ -1,8 +1,12 @@
 # Implicit Behavioral Cloning
 
-This codebase contains the official implementation of the Implicit Behavioral Cloning (IBC) algorithm from the paper:
+This codebase contains the official implementation of the *Implicit Behavioral Cloning (IBC)* algorithm from our paper:
 
-***Florence et al., [Implicit Behavioral Cloning (arxiv link)](https://arxiv.org/abs/2109.00137), Conference on Robotic Learning (CoRL) 2021.***
+
+
+**[Implicit Behavioral Cloning (arXiv link)](https://arxiv.org/abs/2109.00137)** </br>
+*Pete Florence, Corey Lynch, Andy Zeng, Oscar Ramirez, Ayzaan Wahid, Laura Downs, Adrian Wong, Johnny Lee, Igor Mordatch, Jonathan Tompson* </br>
+Conference on Robot Learning (CoRL) 2021
 
 ![](./docs/insert.gif)  |  ![](./docs/sort.gif)
 :-------------------------:|:-------------------------:|
@@ -34,16 +38,21 @@ pip install \
 ```
 
 
-For (optional) Mujoco / D4RL support, you also need to install:
+For (optional) Mujoco / D4RL support, you will also need additional pre-reqs. You'll need some non-Python pre-reqs:
+
+1. Ensure a local Mujoco installed (see
+[here](https://github.com/openai/mujoco-py#install-mujoco) for installation details), you'll need `~/.mujoco/mujoco200` and `~/.mujoco/mjkey.txt`
+2. `sudo apt-get install libosmesa6-dev`
+3. Install patchelf, for example with [these few commands.](https://github.com/openai/mujoco-py/issues/147#issuecomment-361417560)
+
+And then Python packages:
 
 ```
 pip install \
   mujoco_py==2.0.2.5 \
   git+https://github.com/rail-berkeley/d4rl@master#egg=d4rl
 ```
-
-Note that the above will require that you have a local Mujoco installed (see
-[here](https://github.com/openai/mujoco-py) for installation details).
+Note in our case we needed some symlinks as follows to make various packages happy: `cd ~/.mujoco && sudo ln -s mujoco200_linux mujoco200)`.
 
 
 ## Quickstart
@@ -223,17 +232,32 @@ wget https://storage.googleapis.com/brain-reach-public/ibc_data/block_push_state
 unzip 'block_push_states_location.zip'
 ```
 
-For **IBC** train+eval:
+For **IBC** with DFO train+eval:
 
 ```
 python3 ibc/ibc/train_eval.py -- \
   --alsologtostderr \
   --gin_file=ibc/ibc/configs/mlp_ebm.gin \
   --task=PUSH \
-  --tag=name_this_experiment \
+  --tag=ibc_dfo \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'" \
+  --video
 ```
+
+For **IBC** with Langevin train+eval:
+
+```
+python3 ibc/ibc/train_eval.py -- \
+  --alsologtostderr \
+  --gin_file=ibc/ibc/configs/mlp_ebm_langevin.gin \
+  --task=PUSH \
+  --tag=ibc_langevin \
+  --add_time=True \
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'" \
+  --video
+```
+
 
 For **MSE** train+eval:
 
@@ -244,7 +268,8 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PUSH \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'" \
+  --video
 ```
 
 For **MDN** train+eval:
@@ -256,7 +281,8 @@ python3 ibc/ibc/train_eval.py -- \
   --task=PUSH \
   --tag=name_this_experiment \
   --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'"
+  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'" \
+  --video
 ```
 
 ### Task: Block Pushing (from image observations)
@@ -301,22 +327,24 @@ For **IBC** train+eval, the following trains at about 21 steps/sec on a GTX 2080
 ```
 python3 ibc/ibc/train_eval.py -- \
   --alsologtostderr \
-  --gin_file=ibc/ibc/configs/mlp_ebm.gin \
+  --gin_file=ibc/ibc/configs/particle/mlp_ebm_langevin.gin \
   --task=PARTICLE \
   --tag=name_this_experiment \
   --add_time=True \
   --gin_bindings="train_eval.dataset_path='ibc/data/particle/2d_oracle_particle*.tfrecord'" \
-  --gin_bindings="ParticleEnv.n_dim=2"
+  --gin_bindings="ParticleEnv.n_dim=2" \
+  --video
 ```
 
+And to run an N-dimensional version of the environment, change both the `dataset_path` and `ParticleEnv.ndim` via the the `gin_bindings` command line flags.
 
 ### Task: D4RL Adroit and Kitchen
 
 
 The D4RL human demonstration training data used for the paper submission can be downloaded using:
 
-```
-cd data/d4rl_trajectories/
+```bash
+cd ibc/data && mkdir -p d4rl_trajectories && cd d4rl_trajectories
 wget https://storage.googleapis.com/brain-reach-public/ibc_data/door-human-v0.zip \
      https://storage.googleapis.com/brain-reach-public/ibc_data/hammer-human-v0.zip \
      https://storage.googleapis.com/brain-reach-public/ibc_data/kitchen-complete-v0.zip \
@@ -324,12 +352,25 @@ wget https://storage.googleapis.com/brain-reach-public/ibc_data/door-human-v0.zi
      https://storage.googleapis.com/brain-reach-public/ibc_data/kitchen-partial-v0.zip \
      https://storage.googleapis.com/brain-reach-public/ibc_data/pen-human-v0.zip \
      https://storage.googleapis.com/brain-reach-public/ibc_data/relocate-human-v0.zip
-unzip '*.zip'
+unzip '*.zip' && rm *.zip
 ```
 
 ### Run Train Eval:
 
-EBM:
+For IBC:
+
+```bash
+python3 ibc/ibc/train_eval.py -- \
+  --alsologtostderr \
+  --gin_file=ibc/ibc/configs/mlp_ebm_langevin.gin \
+  --task=pen-human-v0 \
+  --add_time=True \
+  --gin_bindings="train_eval.dataset_path='ibc/data/d4rl_trajectories/pen-human-v0/*.tfrecord'" \
+  --gin_bindings="get_normalizers.nested_obs=False" \
+  --video \
+  --tag=d4rl
+```
+
 
 ```
 # pen-human-v0
