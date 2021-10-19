@@ -17,10 +17,10 @@ train_eval.root_dir = '/tmp/ibc_logs/conv_mlp_ebm'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'PixelEBM'
 train_eval.batch_size = 128
-train_eval.num_iterations = 50000
+train_eval.num_iterations = 100000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
-train_eval.eval_episodes = 10
+train_eval.eval_episodes = 100
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
@@ -37,6 +37,8 @@ train_eval.uniform_boundary_buffer = 0.05
 
 PixelEBM.encoder_network = 'ConvMaxpoolEncoder'
 PixelEBM.value_network = 'DenseResnetValue'
+PixelEBM.target_height = 180
+PixelEBM.target_width = 240
 
 # Value config.
 DenseResnetValue.width = 1024

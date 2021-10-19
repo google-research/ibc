@@ -71,9 +71,24 @@ class PixelEBM(network.Network):
     self.target_width = target_width
     self._value = get_value_network(value_network)
 
+    rgb_shape = obs_spec['rgb'].shape
+    self._static_height = rgb_shape[1]
+    self._static_width = rgb_shape[2]
+    self._static_channels = rgb_shape[3]
+
   def encode(self, obs, training):
     """Embeds images."""
     images = obs['rgb']
+
+    # Ensure shape with static shapes from spec since shape information may
+    # be lost in the data pipeline. ResizeBilinear is not supported with
+    # dynamic shapes on TPU.
+    # First 2 dims are batch size, seq len.
+    images = tf.ensure_shape(images, [
+        None, None, self._static_height, self._static_width,
+        self._static_channels
+    ])
+
     images = image_prepro.preprocess(images,
                                      target_height=self.target_height,
                                      target_width=self.target_width)

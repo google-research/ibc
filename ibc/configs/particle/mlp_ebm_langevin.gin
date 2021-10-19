@@ -16,12 +16,12 @@
 train_eval.root_dir = '/tmp/ibc_logs/mlp_ebm_langevin'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'MLPEBM'
-train_eval.batch_size = 2
+train_eval.batch_size = 512
 ImplicitBCAgent.num_counter_examples = 8
 train_eval.num_iterations = 100000
 train_eval.replay_capacity = 10000
-train_eval.eval_interval = 1000
-train_eval.eval_episodes = 2
+train_eval.eval_interval = 5000
+train_eval.eval_episodes = 20
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
@@ -55,5 +55,5 @@ grad_penalty.only_apply_final_grad_penalty = True # Note:
 # investigate if can lessen memory.
 ImplicitBCAgent.run_full_chain_under_gradient = True
 
-langevin_actions_given_obs.num_iterations = 2
+langevin_actions_given_obs.num_iterations = 100
 ImplicitBCAgent.fraction_langevin_samples = 1.0

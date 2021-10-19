@@ -17,21 +17,22 @@ train_eval.root_dir = '/tmp/ibc_logs/mlp_mdn'
 train_eval.loss_type = 'mdn'
 train_eval.network = 'MLPMDN'
 train_eval.batch_size = 512
+train_eval.sequence_length = 2
 
-train_eval.num_iterations = 50000
+train_eval.num_iterations = 10000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
-train_eval.eval_episodes = 20
+train_eval.eval_episodes = 100
 
 get_normalizers.nested_obs = True  # BlockPushing has nested
 
 # Configs for cloning net.
 MLPMDN.layers = 'ResNetPreActivation'
-MLPMDN.width = 128
-MLPMDN.depth = 16
+MLPMDN.width = 512
+MLPMDN.depth = 8
 MLPMDN.rate = 0.1
 
 MLPMDN.num_components = 26
-MLPMDN.training_temperature = .5
+MLPMDN.training_temperature = 1.0
 MLPMDN.test_temperature = 1.0
-MLPMDN.test_variance_exponent = 4.0
+MLPMDN.test_variance_exponent = 1.0

@@ -13,25 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc_logs/pixel_mse'
-train_eval.loss_type = 'mse' # specifies we are training ebm.
-train_eval.network = 'ConvMLPMSE'
-train_eval.batch_size = 64
-train_eval.num_iterations = 50000
-train_eval.replay_capacity = 4096
+train_eval.root_dir = '/tmp/ibc_logs/pixel_mdn'
+train_eval.loss_type = 'mdn' # specifies we are training mdn.
+train_eval.network = 'ConvMLPMDN'
+# TODO(peteflorence: can we do larger batch?)
+train_eval.batch_size = 32
+train_eval.num_iterations = 100000
+train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
-train_eval.eval_episodes = 10
+train_eval.eval_episodes = 100
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
 train_eval.sequence_length = 2
-train_eval.image_obs = True # For block pushing at least.
 train_eval.dataset_eval_fraction = 0.0
+train_eval.image_obs = True
 get_normalizers.nested_obs = True
+compute_dataset_statistics.min_max_actions = True
 
-# # Configs for cloning net.
-ConvMLPMSE.layers = 'MLPDropout'
-ConvMLPMSE.width = 512
-ConvMLPMSE.depth = 2
-ConvMLPMSE.rate = 0.1
-ConvMLPMSE.coord_conv = True
+# Configs for cloning net.
+ConvMLPMDN.layers = 'ResNetPreActivation'
+ConvMLPMDN.width = 512
+ConvMLPMDN.depth = 2
+ConvMLPMDN.rate = 0.1
+ConvMLPMDN.num_components = 26
+ConvMLPMDN.training_temperature = .5
+ConvMLPMDN.test_temperature = 1.0
+ConvMLPMDN.test_variance_exponent = 4.0

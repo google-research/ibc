@@ -24,13 +24,13 @@ train_eval.eval_interval = 5000
 train_eval.eval_episodes = 20
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
-train_eval.seed = 0
 train_eval.sequence_length = 2
 train_eval.dataset_eval_fraction = 0.0
 
 IbcPolicy.num_action_samples = 512
 train_eval.uniform_boundary_buffer = 0.05
 get_normalizers.nested_obs = True  # BlockPushing has nested
+get_normalizers.num_samples = 5000
 compute_dataset_statistics.min_max_actions = True
 
 IbcPolicy.use_dfo = False
