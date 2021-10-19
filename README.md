@@ -275,18 +275,19 @@ cd ../..
 
 #### Train and Evaluate
 
-Here is a reasonably fast-to-train *IBC with Langevin* configuration:
+Here is an *IBC with Langevin* configuration which should actually converge faster than the reported IBC-with-DFO that we reported in the paper:
 
-<!--  partial verified: 100% at 10k steps, 6.5 steps/sec, but this was 90x120 -->
+<!--  partial verified: 100% at 10k steps, 6.5 steps/sec, at 90x120 w/ 128 batch-->
+<!--  partial verified: 100% at 5k steps, 4.1 steps/sec, at 180x240 w/ 128 batch-->
 ```bash
 ./ibc/ibc/configs/pushing_pixels/run_pixel_ebm_langevin.sh
 ```
 
-And here are the **best configs** respectfully **for IBC, MSE, and MDN** (some of these might be slower to train than the above): <a name="pushing-pixels-train"></a>
+And here are the **best configs** respectfully for **IBC** (with DFO), **MSE**, and **MDN**: <a name="pushing-pixels-train"></a>
 
-<!-- not yet verified -->
-<!-- not yet verified -->
-<!-- not yet verified -->
+<!-- partial verified: 75% at 5k steps, 8.0 steps/sec, 180x240 w/ 128 batch-->
+<!-- partial verified: 68% at 10k steps, 9.0 steps/sec, 180x240 w/ 128 batch -->
+<!-- partial verified: 94% at 15k steps, 9.0 steps/sec, 90x120 w/ 128 batch -->
 ```bash
 ./ibc/ibc/configs/pushing_pixels/run_pixel_ebm_best.sh
 ./ibc/ibc/configs/pushing_pixels/run_pixel_mse_best.sh

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for ibc.environments.block_pushing."""
+"""Tests for ibc.data.dataset."""
 
 import collections
 import os

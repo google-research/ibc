@@ -17,7 +17,7 @@ train_eval.root_dir = '/tmp/ibc_logs/pixel_mdn'
 train_eval.loss_type = 'mdn' # specifies we are training mdn.
 train_eval.network = 'ConvMLPMDN'
 # TODO(peteflorence: can we do larger batch?)
-train_eval.batch_size = 32
+train_eval.batch_size = 128
 train_eval.num_iterations = 100000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
@@ -34,9 +34,9 @@ compute_dataset_statistics.min_max_actions = True
 # Configs for cloning net.
 ConvMLPMDN.layers = 'ResNetPreActivation'
 ConvMLPMDN.width = 512
-ConvMLPMDN.depth = 2
+ConvMLPMDN.depth = 8
 ConvMLPMDN.rate = 0.1
 ConvMLPMDN.num_components = 26
-ConvMLPMDN.training_temperature = .5
-ConvMLPMDN.test_temperature = 1.0
+ConvMLPMDN.training_temperature = 2.0
+ConvMLPMDN.test_temperature = 2.0
 ConvMLPMDN.test_variance_exponent = 4.0
