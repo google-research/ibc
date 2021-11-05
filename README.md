@@ -4,7 +4,7 @@ This codebase contains the official implementation of the *Implicit Behavioral C
 
 
 
-**[Implicit Behavioral Cloning (arXiv link)](https://arxiv.org/abs/2109.00137)** </br>
+**Implicit Behavioral Cloning [(website link)](https://implicitbc.github.io/)  [(arXiv link)](https://arxiv.org/abs/2109.00137)** </br>
 *Pete Florence, Corey Lynch, Andy Zeng, Oscar Ramirez, Ayzaan Wahid, Laura Downs, Adrian Wong, Johnny Lee, Igor Mordatch, Jonathan Tompson* </br>
 Conference on Robot Learning (CoRL) 2021
 
@@ -301,26 +301,23 @@ And here are the **best configs** respectfully for **IBC** (with DFO), **MSE**, 
 
 ### Task: Particle
 
+IBC  | MSE
+:-------------------------:|:-------------------------:
+![](./docs/particle_langevin_10000.gif)  |  ![](./docs/particle_mse_10000.gif) |
+
 #### Get Data
 
 We can either generate data from scratch, for example for 2D (takes 15 seconds):
 
 ```bash
-python3 ibc/data/policy_eval.py -- \
- --alsologtostderr \
- --num_episodes=200 \
- --policy=particle_green_then_blue \
- --task=PARTICLE \
- --dataset_path=/tmp/particle/dataset/2d_oracle_particle.tfrecord \
- --replicas=10  \
- --use_image_obs=False \
+./ibc/ibc/configs/particle/collect_data.sh
 ```
 
-Or to do N-D, change `ParticleEnv.n_dim` in `third_party/py/ibc/environments/particle/particle.py`.
+Or to do N-D, change `ParticleEnv.n_dim` in `third_party/py/ibc/environments/particle/particle.py`, and also change the saving data path in `collect_data.sh`.
 
-TODO(peteflorence): this should be settable in gin once this commit lands in a tf-agents release: https://github.com/tensorflow/agents/commit/1ef31b9a8a037924d6c33307650958130e1bb140
+TODO(peteflorence): this should be settable in open-source once this commit lands in a tf-agents release: https://github.com/tensorflow/agents/commit/1ef31b9a8a037924d6c33307650958130e1bb140
 
-Or download all the data: <a name="particle-data"></a>
+Or just download all the data for all different dimensions: <a name="particle-data"></a>
 
 ```bash
 cd ibc/data/
@@ -331,35 +328,30 @@ cd ../..
 
 #### Train and Evaluate
 
-For train+eval, to run an N-dimensional version of an environment, change both the `dataset_path` and `ParticleEnv.ndim` via the the `gin_bindings` command line flags in the commands below.  The ones below will all be shown for n=2.
+Let's start with some small networks, on just the 2D version since it's easiest to visualize, and compare MSE and IBC.  Here's a small-network (256x2) IBC-with-Langevin config, and the 2 is the argument for the environment dimensionality.
 
-For **IBC with DFO** train+eval, the following trains at about 21 steps/sec on a GTX 2080 Ti.  Note this will only work on dimensionalities less than 5.
-
+<!--  partial verified: 96% success, 10k steps, 50 episodes evaluated, 13.3 steps/sec  -->
 ```bash
-python3 ibc/ibc/train_eval.py -- \
-  --alsologtostderr \
-  --gin_file=ibc/ibc/configs/particle/mlp_ebm_langevin.gin \
-  --task=PARTICLE \
-  --tag=name_this_experiment \
-  --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/particle/2d_oracle_particle*.tfrecord'" \
-  --gin_bindings="ParticleEnv.n_dim=2" \
-  --video
+./ibc/ibc/configs/particle/run_mlp_ebm_langevin.sh 2
 ```
 
-For **IBC with Langevin** train+eval, the following trains at about 6.5 steps/sec on a GTX 2080 Ti:
+And here's an idenitcally sized network (256x2) but with MSE config:
 
+<!--  partial verified: 5% success, 10k steps, 20 episodes evaluated, 21.7 steps/sec  -->
 ```bash
-python3 ibc/ibc/train_eval.py -- \
-  --alsologtostderr \
-  --gin_file=ibc/ibc/configs/particle/mlp_ebm_langevin.gin \
-  --task=PARTICLE \
-  --tag=name_this_experiment \
-  --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/particle/2d_oracle_particle*.tfrecord'" \
-  --gin_bindings="ParticleEnv.n_dim=2" \
-  --video
+./ibc/ibc/configs/particle/run_mlp_mse.sh 2
 ```
+
+For the above configurations, we suggest comparing the rollout videos, which you can find at `/tmp/ibc_logs/...corresponding_directory../videos/`. At the top of this section is shown a comparison at 10,000 training steps for the two different above configs.
+
+
+And here are the **best configs** respectfully for **IBC** (with langevin) and **MSE**, in this case run on the 16-dimensional environment: <a name="particle-train"></a>
+
+```
+./ibc/ibc/configs/particle/run_mlp_ebm_langevin_best.sh 16
+./ibc/ibc/configs/particle/run_mlp_mse_best.sh 16
+```
+
 
 ### Task: D4RL Adroit and Kitchen
 
@@ -384,6 +376,7 @@ cd ../../..
 
 
 Here are the **best configs** respectfully for **IBC** (with Langevin), and **MSE**: <a name="d4rl-train"></a>
+On a 2080 Ti GPU test, this IBC config trains at only 1.7 steps/sec, but it is about 10x faster on TPUv3.
 
 
 <!--  partial verified: 2704.5 avg return on pen, 10k steps, 100 episodes evaluated, 1.7 steps/sec  -->
@@ -396,7 +389,7 @@ Here are the **best configs** respectfully for **IBC** (with Langevin), and **MS
 
 The above commands will run on the `pen-human-v0` environment, but you can swap this arg for whichever of the provided Adroit/Kitchen environments.
 
-Here also is an MDN config you can try.  The network size is tiny but if you increase it heavily then it will get NaNs during training. In general MDNs can be finicky.
+Here also is an MDN config you can try.  The network size is tiny but if you increase it heavily then it seems to get NaNs during training. In general MDNs can be finicky.  A solution should be possible though.
 
 ```
 ./ibc/ibc/configs/d4rl/run_mlp_mdn.sh pen-human-v0
@@ -406,11 +399,11 @@ Here also is an MDN config you can try.  The network size is tiny but if you inc
 
 For the tasks that we've been able to open-source, results from the paper should be reproducible by using the linked data and command-line args below.
 
-| Task  | Figure/Table in paper | Data | Train + Eval commands
+| Task  | Figure/Table in paper | Data | Train + Eval commands |
 | --- | --- | --- | --- | --- |
 | Coordinate regression  | Figure 4  | See colab | See colab | See colab |
 | D4RL Adroit + Kitchen  | Table 2 | [Link](#d4rl-data) | [Link](#d4rl-train) |
-| N-D particle  | Figure 6 | [Link](#particle-data) | Link | 
+| N-D particle  | Figure 6 | [Link](#particle-data) | [Link](#particle-train) |
 | Simulated pushing, single target, states  | Table 3 | [Link](#pushing-states-data) | [Link](#pushing-states-train) |
 | Simulated pushing, single target, pixels | Table 3 | [Link](#pushing-pixels-data) | [Link](#pushing-pixels-train) |
 
