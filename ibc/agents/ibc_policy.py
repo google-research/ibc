@@ -294,7 +294,7 @@ class IbcPolicy(tf_policy.TFPolicy):
           noise_scale=1.0)
 
       # Run a second optimization, a trick for more precise
-      # infernce.
+      # inference.
       if self._optimize_again:
         action_samples = mcmc.langevin_actions_given_obs(
             self._actor_network,

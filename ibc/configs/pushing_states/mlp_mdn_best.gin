@@ -19,7 +19,7 @@ train_eval.network = 'MLPMDN'
 train_eval.batch_size = 512
 train_eval.sequence_length = 2
 
-train_eval.num_iterations = 10000
+train_eval.num_iterations = 100000
 train_eval.replay_capacity = 10000
 train_eval.eval_interval = 5000
 train_eval.eval_episodes = 100

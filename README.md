@@ -48,9 +48,14 @@ For (optional) Mujoco / D4RL support, you will also need additional pre-reqs. Yo
 And then Python packages:
 
 ```bash
-pip install \
-  mujoco_py==2.0.2.5 \
-  git+https://github.com/rail-berkeley/d4rl@master#egg=d4rl
+pip install mujoco_py==2.0.2.5
+```
+
+```
+git clone https://github.com/rail-berkeley/d4rl.git
+cd d4rl
+# edit the setup.py file as here: https://github.com/rail-berkeley/d4rl/pull/126
+pip install -e .
 ```
 Note in our case we needed some symlinks as follows to make various packages happy: `cd ~/.mujoco && sudo ln -s mujoco200_linux mujoco200)`.
 
@@ -209,7 +214,7 @@ And several chunks of useful information can be found in the train+eval log dirs
 
 ### Task: Block Pushing (from state observations)
 
-#### Getting data
+#### Get Data
 
 We can either generate data from scratch (~2 minutes for 2,000 episodes: 200 each across 10 replicas):
 
@@ -262,7 +267,7 @@ Or to run the **best configs** respectfully **for IBC, MSE, and MDN** (some of t
 
 ### Task: Block Pushing (from image observations)
 
-#### Getting data
+#### Get Data
 
 Download data from the web: <a name="pushing-pixels-data"></a>
 
@@ -275,7 +280,7 @@ cd ../..
 
 #### Train and Evaluate
 
-Here is an *IBC with Langevin* configuration which should actually converge faster than the reported IBC-with-DFO that we reported in the paper:
+Here is an *IBC with Langevin* configuration which should actually converge faster than the IBC-with-DFO that we reported in the paper:
 
 <!--  partial verified: 100% at 10k steps, 6.5 steps/sec, at 90x120 w/ 128 batch-->
 <!--  partial verified: 100% at 5k steps, 4.1 steps/sec, at 180x240 w/ 128 batch-->
@@ -285,7 +290,7 @@ Here is an *IBC with Langevin* configuration which should actually converge fast
 
 And here are the **best configs** respectfully for **IBC** (with DFO), **MSE**, and **MDN**: <a name="pushing-pixels-train"></a>
 
-<!-- partial verified: 75% at 5k steps, 8.0 steps/sec, 180x240 w/ 128 batch-->
+<!-- partial verified: 94% at 10k steps, 8.0 steps/sec, 180x240 w/ 128 batch-->
 <!-- partial verified: 68% at 10k steps, 9.0 steps/sec, 180x240 w/ 128 batch -->
 <!-- partial verified: 94% at 15k steps, 9.0 steps/sec, 90x120 w/ 128 batch -->
 ```bash
@@ -295,6 +300,8 @@ And here are the **best configs** respectfully for **IBC** (with DFO), **MSE**, 
 ```
 
 ### Task: Particle
+
+#### Get Data
 
 We can either generate data from scratch, for example for 2D (takes 15 seconds):
 
@@ -316,10 +323,13 @@ TODO(peteflorence): this should be settable in gin once this commit lands in a t
 Or download all the data: <a name="particle-data"></a>
 
 ```bash
-cd data/
+cd ibc/data/
 wget https://storage.googleapis.com/brain-reach-public/ibc_data/particle.zip
-unzip particle.zip
+unzip particle.zip && rm particle.zip
+cd ../..
 ```
+
+#### Train and Evaluate
 
 For train+eval, to run an N-dimensional version of an environment, change both the `dataset_path` and `ParticleEnv.ndim` via the the `gin_bindings` command line flags in the commands below.  The ones below will all be shown for n=2.
 
@@ -353,8 +363,9 @@ python3 ibc/ibc/train_eval.py -- \
 
 ### Task: D4RL Adroit and Kitchen
 
+#### Get Data
 
-The D4RL human demonstration training data used for the paper submission can be downloaded using: <a name="d4rl-data"></a>
+The D4RL human demonstration training data used for the paper submission can be downloaded using the commands below.  This data has been processed into a `.tfrecord` format from the original D4RL data format: <a name="d4rl-data"></a>
 
 ```bash
 cd ibc/data && mkdir -p d4rl_trajectories && cd d4rl_trajectories
@@ -366,44 +377,39 @@ wget https://storage.googleapis.com/brain-reach-public/ibc_data/door-human-v0.zi
      https://storage.googleapis.com/brain-reach-public/ibc_data/pen-human-v0.zip \
      https://storage.googleapis.com/brain-reach-public/ibc_data/relocate-human-v0.zip
 unzip '*.zip' && rm *.zip
+cd ../../..
 ```
 
 ### Run Train Eval:
 
-For IBC:
+
+Here are the **best configs** respectfully for **IBC** (with Langevin), and **MSE**: <a name="d4rl-train"></a>
+
+
+<!--  partial verified: 2704.5 avg return on pen, 10k steps, 100 episodes evaluated, 1.7 steps/sec  -->
+<!--  partial verified: 1660.4 avg return on pen, 10k steps, 100 episodes evaluated, 25.5 steps/sec  -->
 
 ```bash
-python3 ibc/ibc/train_eval.py -- \
-  --alsologtostderr \
-  --gin_file=ibc/ibc/configs/mlp_ebm_langevin.gin \
-  --task=pen-human-v0 \
-  --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/d4rl_trajectories/pen-human-v0/*.tfrecord'" \
-  --gin_bindings="get_normalizers.nested_obs=False" \
-  --video \
-  --tag=d4rl
+./ibc/ibc/configs/d4rl/run_mlp_ebm_langevin_best.sh pen-human-v0
+./ibc/ibc/configs/d4rl/run_mlp_mse_best.sh pen-human-v0
 ```
 
+The above commands will run on the `pen-human-v0` environment, but you can swap this arg for whichever of the provided Adroit/Kitchen environments.
 
-```bash
-# pen-human-v0
-./ibc/main.sh \
-  --mode=train \
-  --task=pen-human-v0 \
-  --gin_bindings="train_eval.root_dir='/tmp/ebm'" \
-  --train_dataset_glob="$(pwd)/data/d4rl_trajectories/pen-human-v0/*.tfrecord" \
-  --train_gin_file=mlp_ebm.gin \
-  --train_tag=name_this_experiment
+Here also is an MDN config you can try.  The network size is tiny but if you increase it heavily then it will get NaNs during training. In general MDNs can be finicky.
+
+```
+./ibc/ibc/configs/d4rl/run_mlp_mdn.sh pen-human-v0
 ```
 
-## Summary for reproducing results
+## Summary for Reproducing Results
 
 For the tasks that we've been able to open-source, results from the paper should be reproducible by using the linked data and command-line args below.
 
-| Task  | Fig/table in paper | Data | Train + Eval commands
+| Task  | Figure/Table in paper | Data | Train + Eval commands
 | --- | --- | --- | --- | --- |
 | Coordinate regression  | Figure 4  | See colab | See colab | See colab |
-| D4RL Adroit + Kitchen  | Table 2 | [Link](#d4rl-data) | Link |
+| D4RL Adroit + Kitchen  | Table 2 | [Link](#d4rl-data) | [Link](#d4rl-train) |
 | N-D particle  | Figure 6 | [Link](#particle-data) | Link | 
 | Simulated pushing, single target, states  | Table 3 | [Link](#pushing-states-data) | [Link](#pushing-states-train) |
 | Simulated pushing, single target, pixels | Table 3 | [Link](#pushing-pixels-data) | [Link](#pushing-pixels-train) |

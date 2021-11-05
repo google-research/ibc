@@ -279,7 +279,7 @@ def train_eval(
             name_scope_suffix=f'_{env_name}')
         all_metrics.append(metrics)
 
-        # Need to special-case for kitchen, since rendering doesn't work.
+        # rendering on some of these envs is broken
         if FLAGS.video and 'kitchen' not in task:
           # Write one eval video.
           video_module.make_video(
