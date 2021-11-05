@@ -29,6 +29,6 @@ get_normalizers.nested_obs = True  # Particle has nested
 
 # Configs for cloning net.
 MLPMSE.layers = 'ResNetPreActivation'
-MLPMSE.width = 128
-MLPMSE.depth = 16
+MLPMSE.width = 2048
+MLPMSE.depth = 2
 MLPMSE.rate = 0.1

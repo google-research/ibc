@@ -37,30 +37,10 @@ pip install \
   tqdm==4.62.2
 ```
 
+(Optional): For Mujoco support, see [`docs/mujoco_setup.md`](docs/mujoco_setup.md).  Recommended to skip it
+unless you specifically want to run the Adroit and Kitchen environments.
 
-For (optional) Mujoco / D4RL support, you will also need additional pre-reqs. You'll need some non-Python pre-reqs:
-
-1. Ensure a local Mujoco installed (see
-[here](https://github.com/openai/mujoco-py#install-mujoco) for installation details), you'll need `~/.mujoco/mujoco200` and `~/.mujoco/mjkey.txt`
-2. `sudo apt-get install libosmesa6-dev`
-3. Install patchelf, for example with [these few commands.](https://github.com/openai/mujoco-py/issues/147#issuecomment-361417560)
-
-And then Python packages:
-
-```bash
-pip install mujoco_py==2.0.2.5
-```
-
-```
-git clone https://github.com/rail-berkeley/d4rl.git
-cd d4rl
-# edit the setup.py file as here: https://github.com/rail-berkeley/d4rl/pull/126
-pip install -e .
-```
-Note in our case we needed some symlinks as follows to make various packages happy: `cd ~/.mujoco && sudo ln -s mujoco200_linux mujoco200)`.
-
-
-## Quickstart
+## Quickstart: from 0 to a trained IBC policy in 10 minutes.
 
 **Step 1**: Install listed Python packages above in  [Prerequisites](#Prequisites).
 
@@ -96,19 +76,11 @@ export PYTHONPATH=$PYTHONPATH:${PWD}
 **Step 6**: On that example Block Pushing task, we'll next do a **training + evaluation** with Implicit BC:
 
 ```bash
-python3 ibc/ibc/train_eval.py -- \
-  --alsologtostderr \
-  --gin_file=ibc/ibc/configs/pushing_states/mlp_ebm.gin \
-  --task=PUSH \
-  --tag=ibc_dfo \
-  --add_time=True \
-  --gin_bindings="train_eval.dataset_path='ibc/data/block_push_states_location/oracle_push*.tfrecord'" \
-  --video
+./ibc/ibc/configs/pushing_states/run_mlp_ebm.sh
 ```
 
 *Some notes*:
 
-- Alternatively to copy+pasting the block of command-line args above, you can just: `./ibc/ibc/configs/pushing_states/run_mlp_ebm.sh`.
 - On an example single-GPU machine (GTX 2080 Ti), the above trains at about 18 steps/sec, and should get to high success rates in 5,000 or 10,000 steps (roughly 5-10 minutes of training).
 - The `mlp_ebm.gin` is just one config, with is meant to be reasonably fast to train, with only 20 evals at each interval, and is not suitable for all tasks.  See [Tasks](#tasks) for more configs.
 - Due to the `--video` flag above, you can watch a video of the learned policy in action at: `/tmp/ibc_logs/mlp_ebm/ibc_dfo/`... navigate to the `videos/ttl=7d` subfolder, and by default there should be one example `.mp4` video saved every time you do an evaluation interval.
@@ -134,83 +106,67 @@ python3 ibc/data/policy_eval.py -- \
   --task=PUSH
 ```
 
-**You're done with Quickstart!**  See other sections below for [Codebase Overview](#codebase-overview), [Workflow](#workflow), and more [Tasks](#tasks).
+**You're done with Quickstart!**  See below for more [Tasks](#tasks), and also see [`docs/codebase_overview.md`](docs/codebase_overview.md) and [`docs/workflow.md`](docs/workflow.md) for additional info.
 
-## Codebase Overview
-
-The highest level structure contains:
-
-
-- `ibc/`
-    - `data/` <-- tools to generate datasets, and feed data for training
-    - `environments/` <-- a collection of environments
-    - `networks/` <-- TensorFlow models for state inputs and/or vision inputs
-    - ...
-
-The above directories are algorithm-agnostic, and the implementation of specific algorithms
-are mostly in:
-
-- `ibc/ibc/`
-    - `agents/` <-- holds the majority of the BC algorithm details, including:
-        - `ibc_agent.py` <-- class for IBC training
-        - `ibc_policy.py` <-- class for IBC inference
-        - `mcmc.py` <-- implements optimizers used for IBC training/inference
-        - similar files for MSE and MDN policies.
-    - `losses/` <-- loss functions
-        - `ebm_loss.py` <-- several different EBM-style loss functions.
-        - `gradient_loss.py` <-- gradient penalty for Langevin
-    - `configs/` <-- configurations for different trainings (including hyperparams)
-    - ... other various utils for making training and evaluation happen.
-
-A couple more notes for you the reader:
-
-1. The codebase was optimized for large-scale experimentation and trying out many different ideas.  With hindsight it could be much simpler to implement a simplified version of only the core essentials.
-2. The codebase heavily uses TF Agents, so we don't have to re-invent various wheels, and it is recommended you take a look at the Guide to get a sense: https://www.tensorflow.org/agents/overview
-
-
-## Workflow
-
-For each task we will **(1) acquire data** either by:
-
-  - (a) Generating training data from scratch with scripted oracles (via `policy_eval.py`), **OR**
-  - (b) Downloading training data from the web.
-
-And then **(2) run a train+eval** by:
-
-  - Running both training and evaluation in one script (via `train_eval.py`)
-
-Note that each train+eval will spend a minute or two
-computing normalization statistics, then start training with example printouts:
-
-```bash
-I1013 22:26:42.807687 139814213846848 triggers.py:223] Step: 100, 11.514 steps/sec
-I1013 22:26:48.352215 139814213846848 triggers.py:223] Step: 200, 18.036 steps/sec
-```
-
-And at certain intervals (set in the configs), run evaluations:
-
-```bash
-I1013 22:19:30.002617 140341789730624 train_eval.py:343] Evaluating policy.
-...
-I1013 22:21:11.054836 140341789730624 actor.py:196]
-		 AverageReturn = 21.162763595581055
-		 AverageEpisodeLength = 48.79999923706055
-		 AverageFinalGoalDistance = 0.016136236488819122
-		 AverageSuccessMetric = 1.0
-
-```
-
-There is **Tensorboard** support which can be obtained (for default configs) by running the following (and then going to `localhost:6006` in a browser.  (Might be slightly different for you to set up -- let us know if there are any issues.)
-
-```bash
-tensorboard --logdir /tmp/ibc_logs
-```
-
-And several chunks of useful information can be found in the train+eval log dirs for each experiment, which will end up for example at `/tmp/ibc_logs/mlp_ebm` after running the first suggested training.  For example `operative-gin-config.txt` will save out all the hyperparameters used for that training.
 
 
 
 ## Tasks
+
+### Task: Particle
+
+In this task, the goal is for the agent (black dot) to first go to the green dot, then the blue dot.
+
+Example IBC policy  | Example MSE policy
+:-------------------------:|:-------------------------:
+![](./docs/particle_langevin_10000.gif)  |  ![](./docs/particle_mse_10000.gif) |
+
+#### Get Data
+
+We can either generate data from scratch, for example for 2D (takes 15 seconds):
+
+```bash
+./ibc/ibc/configs/particle/collect_data.sh
+```
+
+Or just download all the data for all different dimensions: <a name="particle-data"></a>
+
+```bash
+cd ibc/data/
+wget https://storage.googleapis.com/brain-reach-public/ibc_data/particle.zip
+unzip particle.zip && rm particle.zip
+cd ../..
+```
+
+#### Train and Evaluate
+
+Let's start with some small networks, on just the 2D version since it's easiest to visualize, and compare MSE and IBC.  Here's a small-network (256x2) IBC-with-Langevin config, where `2` is the argument for the environment dimensionality.
+
+<!--  partial verified: 96% success, 10k steps, 50 episodes evaluated, 13.3 steps/sec  -->
+```bash
+./ibc/ibc/configs/particle/run_mlp_ebm_langevin.sh 2
+```
+
+And here's an idenitcally sized network (256x2) but with MSE config:
+
+<!--  partial verified: 5% success, 10k steps, 20 episodes evaluated, 21.7 steps/sec  -->
+```bash
+./ibc/ibc/configs/particle/run_mlp_mse.sh 2
+```
+
+For the above configurations, we suggest comparing the rollout videos, which you can find at `/tmp/ibc_logs/...corresponding_directory../videos/`. At the top of this section is shown a comparison at 10,000 training steps for the two different above configs.
+
+
+And here are the **best configs** respectfully for **IBC** (with langevin) and **MSE**, in this case run on the 16-dimensional environment: <a name="particle-train"></a>
+
+```
+./ibc/ibc/configs/particle/run_mlp_ebm_langevin_best.sh 16
+./ibc/ibc/configs/particle/run_mlp_mse_best.sh 16
+```
+
+Note: the *`_best`* config is kind of slow for Langevin to train, but even just `./ibc/ibc/configs/particle/run_mlp_ebm_langevin.sh 16` (smaller network) seems to solve the 16-D environment pretty well, and is much faster to train.
+
+
 
 ### Task: Block Pushing (from state observations)
 
@@ -299,59 +255,6 @@ And here are the **best configs** respectfully for **IBC** (with DFO), **MSE**, 
 ./ibc/ibc/configs/pushing_pixels/run_pixel_mdn_best.sh
 ```
 
-### Task: Particle
-
-IBC  | MSE
-:-------------------------:|:-------------------------:
-![](./docs/particle_langevin_10000.gif)  |  ![](./docs/particle_mse_10000.gif) |
-
-#### Get Data
-
-We can either generate data from scratch, for example for 2D (takes 15 seconds):
-
-```bash
-./ibc/ibc/configs/particle/collect_data.sh
-```
-
-Or to do N-D, change `ParticleEnv.n_dim` in `third_party/py/ibc/environments/particle/particle.py`, and also change the saving data path in `collect_data.sh`.
-
-TODO(peteflorence): this should be settable in open-source once this commit lands in a tf-agents release: https://github.com/tensorflow/agents/commit/1ef31b9a8a037924d6c33307650958130e1bb140
-
-Or just download all the data for all different dimensions: <a name="particle-data"></a>
-
-```bash
-cd ibc/data/
-wget https://storage.googleapis.com/brain-reach-public/ibc_data/particle.zip
-unzip particle.zip && rm particle.zip
-cd ../..
-```
-
-#### Train and Evaluate
-
-Let's start with some small networks, on just the 2D version since it's easiest to visualize, and compare MSE and IBC.  Here's a small-network (256x2) IBC-with-Langevin config, and the 2 is the argument for the environment dimensionality.
-
-<!--  partial verified: 96% success, 10k steps, 50 episodes evaluated, 13.3 steps/sec  -->
-```bash
-./ibc/ibc/configs/particle/run_mlp_ebm_langevin.sh 2
-```
-
-And here's an idenitcally sized network (256x2) but with MSE config:
-
-<!--  partial verified: 5% success, 10k steps, 20 episodes evaluated, 21.7 steps/sec  -->
-```bash
-./ibc/ibc/configs/particle/run_mlp_mse.sh 2
-```
-
-For the above configurations, we suggest comparing the rollout videos, which you can find at `/tmp/ibc_logs/...corresponding_directory../videos/`. At the top of this section is shown a comparison at 10,000 training steps for the two different above configs.
-
-
-And here are the **best configs** respectfully for **IBC** (with langevin) and **MSE**, in this case run on the 16-dimensional environment: <a name="particle-train"></a>
-
-```
-./ibc/ibc/configs/particle/run_mlp_ebm_langevin_best.sh 16
-./ibc/ibc/configs/particle/run_mlp_mse_best.sh 16
-```
-
 
 ### Task: D4RL Adroit and Kitchen
 
@@ -400,8 +303,8 @@ Here also is an MDN config you can try.  The network size is tiny but if you inc
 For the tasks that we've been able to open-source, results from the paper should be reproducible by using the linked data and command-line args below.
 
 | Task  | Figure/Table in paper | Data | Train + Eval commands |
-| --- | --- | --- | --- | --- |
-| Coordinate regression  | Figure 4  | See colab | See colab | See colab |
+| --- | --- | --- | --- |
+| Coordinate regression  | Figure 4  | See colab | See colab |
 | D4RL Adroit + Kitchen  | Table 2 | [Link](#d4rl-data) | [Link](#d4rl-train) |
 | N-D particle  | Figure 6 | [Link](#particle-data) | [Link](#particle-train) |
 | Simulated pushing, single target, states  | Table 3 | [Link](#pushing-states-data) | [Link](#pushing-states-train) |
@@ -413,11 +316,11 @@ For the tasks that we've been able to open-source, results from the paper should
 If you found our paper/code useful in your research, please consider citing:
 
 ```
-@article{
-  author = {Pete Florence, Corey Lynch, Andy Zeng, Oscar Ramirez, Ayzaan Wahid, Laura Downs, Adrian Wong, Johnny Lee, Igor Mordatch, Jonathan Tompson},
-  title = {Implicit Behavioral Cloning},
-  journal = {Conference on Robotic Learning (CoRL)},
-  month = {November},
-  year = {2021},
+@article{florence2021implicit,
+    title={Implicit Behavioral Cloning},
+    author={Florence, Pete and Lynch, Corey and Zeng, Andy and Ramirez, Oscar and Wahid, Ayzaan and Downs, Laura and Wong, Adrian and Lee, Johnny and Mordatch, Igor and Tompson, Jonathan},
+    journal={Conference on Robot Learning (CoRL)},
+    month = {November},
+    year={2021}
 }
 ```
