@@ -82,7 +82,7 @@ export PYTHONPATH=$PYTHONPATH:${PWD}
 *Some notes*:
 
 - On an example single-GPU machine (GTX 2080 Ti), the above trains at about 18 steps/sec, and should get to high success rates in 5,000 or 10,000 steps (roughly 5-10 minutes of training).
-- The `mlp_ebm.gin` is just one config, with is meant to be reasonably fast to train, with only 20 evals at each interval, and is not suitable for all tasks.  See [Tasks](#tasks) for more configs.
+- The `mlp_ebm.gin` is just one config, which is meant to be reasonably fast to train, with only 20 evals at each interval, and is not suitable for all tasks.  See [Tasks](#tasks) for more configs.
 - Due to the `--video` flag above, you can watch a video of the learned policy in action at: `/tmp/ibc_logs/mlp_ebm/ibc_dfo/`... navigate to the `videos/ttl=7d` subfolder, and by default there should be one example `.mp4` video saved every time you do an evaluation interval.
 
 **(Optional) Step 7**: For the pybullet-based tasks, we also have real-time interactive visualization set up through a visualization server, so in one terminal:
