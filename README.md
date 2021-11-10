@@ -32,8 +32,8 @@ pip install \
   pybullet==3.1.6 \
   scipy==1.7.1 \
   tensorflow==2.6.0 \
-  tensorflow-probability==0.13.0 \
-  tf-agents-nightly==0.10.0.dev20210930 \
+  keras==2.6.0 \
+  tf-agents==0.11.0rc0 \
   tqdm==4.62.2
 ```
 
