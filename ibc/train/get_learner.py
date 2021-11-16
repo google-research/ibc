@@ -35,7 +35,6 @@ def get_learner(loss_type,
   saved_model_dir = os.path.join(root_dir, learner.POLICY_SAVED_MODEL_DIR)
 
   extra_concrete_functions = []
-  print(ibc_policy)  # Just to pass linter temporarily.
   # TODO(peteflorence, oars): fix serialization when Policy/Network don't have
   # matching tensor specs, due to float-casting of images.
   if loss_type == 'ebm':
