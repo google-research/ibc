@@ -25,7 +25,7 @@ train_eval.eval_episodes = 20
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
-train_eval.sequence_length = 2
+train_eval.sequence_length = 1
 train_eval.dataset_eval_fraction = 0.0
 
 IbcPolicy.num_action_samples = 512
@@ -39,7 +39,7 @@ IbcPolicy.use_langevin = True
 IbcPolicy.optimize_again = False
 
 # Configs for cloning net.
-MLPEBM.layers = 'ResNetPreActivation'
+MLPEBM.layers = 'MLPDropout'
 MLPEBM.width = 256
 MLPEBM.depth = 2
 MLPEBM.rate = 0.0
@@ -54,7 +54,7 @@ grad_penalty.only_apply_final_grad_penalty = True # Note:
 # we actually get slightly better results with this as False,
 # however we get an OOM with it as False.  TODO(peteflorence,oars):
 # investigate if can lessen memory.
-ImplicitBCAgent.run_full_chain_under_gradient = True
+ImplicitBCAgent.run_full_chain_under_gradient = False
 
 langevin_actions_given_obs.num_iterations = 100
 ImplicitBCAgent.fraction_langevin_samples = 1.0
