@@ -142,13 +142,13 @@ def main(argv):
       action = oracle_policy.action(time_step,
                                     oracle_policy.get_initial_state(1)).action
 
-      time_step = env.step(action)
-
       if len(episode_data.action) < MAX_EPISODE_RECORD_STEPS:
         episode_data.action.append(
             policy_step.PolicyStep(action=action, state=(), info=()))
         episode_data.time_step.append(time_step)
         episode_data.pybullet_state.append(env.get_pybullet_state())
+
+      time_step = env.step(action)
 
       done = time_step.is_last()
       reward = time_step.reward
