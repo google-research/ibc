@@ -125,18 +125,18 @@ class ParticleEnv(gym.Env):
 
   def _create_observation_space(self):
     obs_dict = collections.OrderedDict(
-        pos_agent=spaces.Box(low=0., high=1., shape=(self.n_dim,),
+        pos_agent=spaces.Box(low=0., high=1., shape=(self.n_dim,),  # pytype: disable=attribute-error
                              dtype=np.float32),
         # TODO(peteflorence): is this the actual max for vel_agent?
-        vel_agent=spaces.Box(low=-1e2, high=1e2, shape=(self.n_dim,),
+        vel_agent=spaces.Box(low=-1e2, high=1e2, shape=(self.n_dim,),  # pytype: disable=attribute-error
                              dtype=np.float32),
-        pos_first_goal=spaces.Box(low=0., high=1., shape=(self.n_dim,),
+        pos_first_goal=spaces.Box(low=0., high=1., shape=(self.n_dim,),  # pytype: disable=attribute-error
                                   dtype=np.float32),
-        pos_second_goal=spaces.Box(low=0., high=1., shape=(self.n_dim,),
+        pos_second_goal=spaces.Box(low=0., high=1., shape=(self.n_dim,),  # pytype: disable=attribute-error
                                    dtype=np.float32)
     )
 
-    if self.hide_velocity:
+    if self.hide_velocity:  # pytype: disable=attribute-error
       del obs_dict['vel_agent']
 
     return spaces.Dict(obs_dict)
@@ -145,7 +145,7 @@ class ParticleEnv(gym.Env):
     self._rng = np.random.RandomState(seed=seed)
 
   def reset(self):
-    self.reset_counter += 1
+    self.reset_counter += 1  # pytype: disable=attribute-error
     self.steps = 0
     # self.obs_log and self.act_log hold internal state,
     # will be useful for plotting.
@@ -154,10 +154,10 @@ class ParticleEnv(gym.Env):
     self.new_actions = []
 
     obs = dict()
-    obs['pos_agent'] = self._rng.rand(self.n_dim).astype(np.float32)
-    obs['vel_agent'] = np.zeros((self.n_dim)).astype(np.float32)
-    obs['pos_first_goal'] = self._rng.rand(self.n_dim).astype(np.float32)
-    obs['pos_second_goal'] = self._rng.rand(self.n_dim).astype(np.float32)
+    obs['pos_agent'] = self._rng.rand(self.n_dim).astype(np.float32)  # pytype: disable=attribute-error
+    obs['vel_agent'] = np.zeros((self.n_dim)).astype(np.float32)  # pytype: disable=attribute-error
+    obs['pos_first_goal'] = self._rng.rand(self.n_dim).astype(np.float32)  # pytype: disable=attribute-error
+    obs['pos_second_goal'] = self._rng.rand(self.n_dim).astype(np.float32)  # pytype: disable=attribute-error
 
     self.obs_log.append(obs)
 
@@ -166,27 +166,27 @@ class ParticleEnv(gym.Env):
     return self._get_state()
 
   def _get_state(self):
-    return copy.deepcopy(self.obs_log[-1])
+    return copy.deepcopy(self.obs_log[-1])  # pytype: disable=attribute-error
 
   def _internal_step(self, action, new_action):
     if new_action:
-      self.new_actions.append(len(self.act_log))
-    self.act_log.append({'pos_setpoint': action})
-    obs = self.obs_log[-1]
+      self.new_actions.append(len(self.act_log))  # pytype: disable=attribute-error
+    self.act_log.append({'pos_setpoint': action})  # pytype: disable=attribute-error
+    obs = self.obs_log[-1]  # pytype: disable=attribute-error
     # u = k_p (x_{desired} - x) + k_v (xdot_{desired} - xdot)
     # xdot_{desired} is always (0, 0) -->
     # u = k_p (x_{desired} - x) - k_v (xdot)
-    u_agent = self.k_p * (action - obs['pos_agent']) - self.k_v * (
+    u_agent = self.k_p * (action - obs['pos_agent']) - self.k_v * (  # pytype: disable=attribute-error
         obs['vel_agent'])
-    new_xy_agent = obs['pos_agent'] + obs['vel_agent'] * self.dt
-    new_velocity_agent = obs['vel_agent'] + u_agent * self.dt
+    new_xy_agent = obs['pos_agent'] + obs['vel_agent'] * self.dt  # pytype: disable=attribute-error
+    new_velocity_agent = obs['vel_agent'] + u_agent * self.dt  # pytype: disable=attribute-error
     obs = copy.deepcopy(obs)
     obs['pos_agent'] = new_xy_agent
     obs['vel_agent'] = new_velocity_agent
-    self.obs_log.append(obs)
+    self.obs_log.append(obs)  # pytype: disable=attribute-error
 
   def dist(self, goal):
-    current_position = self.obs_log[-1]['pos_agent']
+    current_position = self.obs_log[-1]['pos_agent']  # pytype: disable=attribute-error
     return np.linalg.norm(current_position - goal)
 
   def _get_reward(self, done):
@@ -194,23 +194,23 @@ class ParticleEnv(gym.Env):
 
     # This also statefully updates these values.
     self.min_dist_to_first_goal = min(
-        self.dist(self.obs_log[0]['pos_first_goal']),
-        self.min_dist_to_first_goal)
+        self.dist(self.obs_log[0]['pos_first_goal']),  # pytype: disable=attribute-error
+        self.min_dist_to_first_goal)  # pytype: disable=attribute-error
     self.min_dist_to_second_goal = min(
-        self.dist(self.obs_log[0]['pos_second_goal']),
-        self.min_dist_to_second_goal)
+        self.dist(self.obs_log[0]['pos_second_goal']),  # pytype: disable=attribute-error
+        self.min_dist_to_second_goal)  # pytype: disable=attribute-error
 
     def _reward(thresh):
       reward_first = True if self.min_dist_to_first_goal < thresh else False
       reward_second = True if self.min_dist_to_second_goal < thresh else False
       return 1.0 if (reward_first and reward_second and done) else 0.0
 
-    reward = _reward(self.goal_distance)
+    reward = _reward(self.goal_distance)  # pytype: disable=attribute-error
     return reward
 
   @property
   def succeeded(self):
-    thresh = self.goal_distance
+    thresh = self.goal_distance  # pytype: disable=attribute-error
     hit_first = True if self.min_dist_to_first_goal < thresh else False
     hit_second = True if self.min_dist_to_second_goal < thresh else False
     # TODO(peteflorence/coreylynch: this doesn't work for multimodal version)
@@ -221,20 +221,20 @@ class ParticleEnv(gym.Env):
   def step(self, action):
     self.steps += 1
     self._internal_step(action, new_action=True)
-    for _ in range(self.repeat_actions - 1):
+    for _ in range(self.repeat_actions - 1):  # pytype: disable=attribute-error
       self._internal_step(action, new_action=False)
     state = self._get_state()
-    done = True if self.steps >= self.n_steps else False
+    done = True if self.steps >= self.n_steps else False  # pytype: disable=attribute-error
     reward = self._get_reward(done)
     return state, reward, done, {}
 
   def render(self, mode='rgb_array'):
     fig = plt.figure()
     fig.add_subplot(111)
-    if self.n_dim == 2:
-      fig, _ = particle_viz.visualize_2d(self.obs_log, self.act_log)
+    if self.n_dim == 2:  # pytype: disable=attribute-error
+      fig, _ = particle_viz.visualize_2d(self.obs_log, self.act_log)  # pytype: disable=attribute-error
     else:
-      fig, _ = particle_viz.visualize_nd(self.obs_log, self.act_log)
+      fig, _ = particle_viz.visualize_nd(self.obs_log, self.act_log)  # pytype: disable=attribute-error
     fig.canvas.draw()
     data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
     data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -246,15 +246,15 @@ class ParticleEnv(gym.Env):
 
   def save_image(self, traj):
     if traj.is_last():
-      assert self.img_save_dir is not None
-      if self.n_dim == 2:
+      assert self.img_save_dir is not None  # pytype: disable=attribute-error
+      if self.n_dim == 2:  # pytype: disable=attribute-error
         fig, _ = particle_viz.visualize_2d(self.obs_log, self.act_log)
-        filename = os.path.join(self.img_save_dir,
+        filename = os.path.join(self.img_save_dir,  # pytype: disable=attribute-error
                                 str(self.reset_counter).zfill(6)+'_2d.png')
         fig.savefig(filename)
         plt.close(fig)
       fig, _ = particle_viz.visualize_nd(self.obs_log, self.act_log)
-      filename = os.path.join(self.img_save_dir,
+      filename = os.path.join(self.img_save_dir,  # pytype: disable=attribute-error
                               str(self.reset_counter).zfill(6)+'_nd.png')
       fig.savefig(filename)
       plt.close(fig)
