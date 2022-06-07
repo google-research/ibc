@@ -44,7 +44,7 @@ PYBULLET_STATE_VERSION = 2  # Basic versioning of serialized pybullet state.
 # The abstractions below allow us to use older versions of scipy.
 def rotation_to_matrix(rotation):
   if hasattr(rotation, 'as_dcm'):
-    return rotation.as_dcm()
+    return rotation.as_matrix()
   else:
     assert hasattr(rotation, 'as_matrix')
     return rotation.as_matrix()
@@ -52,7 +52,7 @@ def rotation_to_matrix(rotation):
 
 def matrix_to_rotation(matrix):
   if hasattr(transform.Rotation, 'from_dcm'):
-    return transform.Rotation.from_dcm(matrix)
+    return transform.Rotation.from_matrix(matrix)
   else:
     assert hasattr(transform.Rotation, 'from_matrix')
     return transform.Rotation.from_matrix(matrix)
