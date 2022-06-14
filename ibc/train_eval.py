@@ -44,6 +44,7 @@ from tf_agents.train.utils import spec_utils
 from tf_agents.train.utils import strategy_utils
 from tf_agents.train.utils import train_utils
 from tf_agents.utils import common
+import wandb
 
 flags.DEFINE_string('tag', None,
                     'Tag for the experiment. Appended to the root_dir.')
@@ -376,6 +377,15 @@ def main(_):
                                       # hack until we get proper distributed
                                       # eval working. Remove it once we do.
                                       skip_unknown=True)
+
+  wandb.init(
+    project="google-research-ibc",
+    sync_tensorboard=True,
+  )
+  # Print operative gin config to stdout so wandb can intercept.
+  # (it'd be nice for gin to provide a flat/nested dictionary of values so they
+  # can be used via wandb's aggregation...)
+  print(gin.config.config_str())
 
   # For TPU, FLAGS.tpu will be set with a TPU address and FLAGS.use_gpu
   # will be False.
