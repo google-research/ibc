@@ -599,7 +599,7 @@ class BlockPush(gym.Env):
 
   def _render_camera(self, image_size):
     """Render RGB image with RealSense configuration."""
-    viewm, projm, _, _, _ = self.calc_camera_params(image_size)
+    viewm, projm, _, _, _ = self.calc_camera_params(image_size)  # pytype: disable=wrong-arg-types
 
     # Render with OpenGL camera settings.
     _, _, color, _, _ = self._pybullet_client.getCameraImage(
