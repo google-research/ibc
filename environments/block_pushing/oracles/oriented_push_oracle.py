@@ -211,7 +211,7 @@ class OrientedPushOracle(py_policy.PyPolicy):
       xy_delta = xy_direction * max_step_distance
     return xy_delta
 
-  def _action(self,
+  def _action(self,  # pytype: disable=signature-mismatch  # re-none
               time_step,
               policy_state):
     if time_step.is_first():
@@ -233,7 +233,7 @@ class OrientedPushNormalizedOracle(py_policy.PyPolicy):
   def reset(self):
     self._oracle.reset()
 
-  def _action(self, time_step,
+  def _action(self, time_step,  # pytype: disable=signature-mismatch  # re-none
               policy_state):
     time_step = time_step._asdict()
     time_step["observation"] = self._env.calc_unnormalized_state(

@@ -62,7 +62,7 @@ class ParticleOracle(py_policy.PyPolicy):
       # Choose a random goal order.
       random.shuffle(self.goal_order)
 
-  def _action(self, time_step,
+  def _action(self, time_step,  # pytype: disable=signature-mismatch  # re-none
               policy_state):
 
     if time_step.is_first():

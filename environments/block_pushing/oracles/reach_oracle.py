@@ -33,7 +33,7 @@ class ReachOracle(py_policy.PyPolicy):
     self._np_random_state = np.random.RandomState(0)
     self._block_pushing_oracles_action_std = block_pushing_oracles_action_std
 
-  def _action(self, time_step,
+  def _action(self, time_step,  # pytype: disable=signature-mismatch  # re-none
               policy_state):
 
     # Specifying this as velocity makes it independent of control frequency.

@@ -34,7 +34,7 @@ class NoCopyAsDict(object):
     Returns:
       dict containing contents of dataclass.
     """
-    return {k.name: getattr(self, k.name) for k in dataclasses.fields(self)}
+    return {k.name: getattr(self, k.name) for k in dataclasses.fields(self)}  # pytype: disable=wrong-arg-types  # re-none
 
 
 @dataclasses.dataclass
