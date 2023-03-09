@@ -224,7 +224,7 @@ def main(_):
           dataset_path=dataset_path,
           history_length=flags.FLAGS.history_length
       )
-      job = context.Process(target=evaluate, kwargs=kwargs)
+      job = context.Process(target=evaluate, kwargs=kwargs)  # pytype: disable=attribute-error  # re-none
       job.start()
       jobs.append(job)
 

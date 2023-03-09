@@ -79,7 +79,7 @@ class MseBehavioralCloningAgent(base_agent.BehavioralCloningAgent):
         summarize_grads_and_vars=summarize_grads_and_vars,
         train_step_counter=train_step_counter)
 
-  def _loss(self,
+  def _loss(self,  # pytype: disable=signature-mismatch  # re-none
             experience,
             variables_to_train=None,
             weights = None,
