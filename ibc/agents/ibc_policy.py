@@ -65,7 +65,7 @@ def generate_registration_functions(policy, policy_network, strategy):
   return _create_variables
 
 
-@tfp.experimental.register_composite
+@tfp.experimental.auto_composite_tensor
 class MappedCategorical(tfp.distributions.Categorical):
   """Categorical distribution that maps classes to specific values."""
 
