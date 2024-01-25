@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 The Reach ML Authors.
+# Copyright 2024 The Reach ML Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -260,7 +260,7 @@ class BlockPush(gym.Env):
 
   @property
   def robot(self):
-    return self._robot
+    return self._robot  # pytype: disable=bad-return-type  # dataclasses-replace
 
   @property
   def workspace_uid(self):
@@ -357,7 +357,7 @@ class BlockPush(gym.Env):
 
   def _set_robot_target_effector_pose(self, pose):
     self._target_effector_pose = pose
-    self._robot.set_target_effector_pose(pose)
+    self._robot.set_target_effector_pose(pose)  # pytype: disable=attribute-error  # dataclasses-replace
 
   def reset(self, reset_poses = True):
     workspace_center_x = 0.4
@@ -442,7 +442,7 @@ class BlockPush(gym.Env):
                                      -1 * xy_dir_block_to_target * 0.05)
 
   def _compute_state(self):
-    effector_pose = self._robot.forward_kinematics()
+    effector_pose = self._robot.forward_kinematics()  # pytype: disable=attribute-error  # dataclasses-replace
     block_position_and_orientation = self._pybullet_client.getBasePositionAndOrientation(
         self._block_ids[0])
     block_pose = Pose3d(
@@ -457,8 +457,8 @@ class BlockPush(gym.Env):
         block_translation=block_pose.translation[0:2],
         block_orientation=_yaw_from_pose(block_pose),
         effector_translation=effector_pose.translation[0:2],
-        effector_target_translation=self._target_effector_pose.translation[0:2],
-        target_translation=self._target_pose.translation[0:2],
+        effector_target_translation=self._target_effector_pose.translation[0:2],  # pytype: disable=attribute-error  # dataclasses-replace
+        target_translation=self._target_pose.translation[0:2],  # pytype: disable=attribute-error  # dataclasses-replace
         target_orientation=_yaw_from_pose(self._target_pose))
     if self._image_size is not None:
       obs['rgb'] = self._render_camera(self._image_size)
@@ -469,7 +469,7 @@ class BlockPush(gym.Env):
     # Compute target_effector_pose by shifting the effector's pose by the
     # action.
     target_effector_translation = np.array(
-        self._target_effector_pose.translation) + np.array(
+        self._target_effector_pose.translation) + np.array(  # pytype: disable=attribute-error  # dataclasses-replace
             [action[0], action[1], 0])
 
     target_effector_translation[0:2] = np.clip(target_effector_translation[0:2],

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 The Reach ML Authors.
+# Copyright 2024 The Reach ML Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,16 +55,16 @@ class StrategyPyTFEagerPolicy(py_tf_eager_policy.PyTFEagerPolicyBase):
     # This currently only takes the first result from the replicated results.
     # If there is more than one device, other results will be ignored.
     if seed is not None:
-      strategy_result = self._strategy.run(
+      strategy_result = self._strategy.run(  # pytype: disable=attribute-error  # dataclasses-replace
           self._policy_action_fn,
           args=(time_step, policy_state),
           kwargs={'seed': seed})
-      local_results = self._strategy.experimental_local_results(strategy_result)
+      local_results = self._strategy.experimental_local_results(strategy_result)  # pytype: disable=attribute-error  # dataclasses-replace
       policy_step = local_results[0]
     else:
-      strategy_result = self._strategy.run(
+      strategy_result = self._strategy.run(  # pytype: disable=attribute-error  # dataclasses-replace
           self._policy_action_fn, args=(time_step, policy_state))
-      local_results = self._strategy.experimental_local_results(strategy_result)
+      local_results = self._strategy.experimental_local_results(strategy_result)  # pytype: disable=attribute-error  # dataclasses-replace
       policy_step = local_results[0]
     if not self._batch_time_steps:
       return policy_step
