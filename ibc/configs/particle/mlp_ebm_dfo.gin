@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Reach ML Authors.
+# Copyright 2021 The Reach ML Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-train_eval.root_dir = '/tmp/ibc_logs/mlp_ebm_langevin'
+train_eval.root_dir = '/tmp/ibc_logs/mlp_ebm_dfo'
 train_eval.loss_type = 'ebm' # specifies we are training ebm.
 train_eval.network = 'MLPEBM'
 train_eval.batch_size = 512
@@ -25,7 +25,7 @@ train_eval.eval_episodes = 20
 train_eval.learning_rate = 1e-3
 train_eval.goal_tolerance = 0.02
 train_eval.seed = 0
-train_eval.sequence_length = 1
+train_eval.sequence_length = 2
 train_eval.dataset_eval_fraction = 0.0
 
 IbcPolicy.num_action_samples = 512
@@ -34,11 +34,12 @@ get_normalizers.nested_obs = True  # Particle has nested
 get_normalizers.num_samples = 5000
 compute_dataset_statistics.min_max_actions = True
 
-IbcPolicy.use_dfo = False
-IbcPolicy.use_langevin = True
+IbcPolicy.use_dfo = True
+IbcPolicy.use_langevin = False
 IbcPolicy.optimize_again = False
 
 # Configs for cloning net.
+# MLPEBM.layers = 'ResNetPreActivation'
 MLPEBM.layers = 'MLPDropout'
 MLPEBM.width = 256
 MLPEBM.depth = 2
@@ -46,15 +47,5 @@ MLPEBM.rate = 0.0
 MLPEBM.dense_layer_type = 'regular'
 MLPEBM.activation = 'relu'
 ImplicitBCAgent.compute_mse = True
+ImplicitBCAgent.add_grad_penalty = False
 ResNetLayer.normalizer = None
-
-
-grad_penalty.grad_margin = 1.0
-grad_penalty.only_apply_final_grad_penalty = True # Note:
-# we actually get slightly better results with this as False,
-# however we get an OOM with it as False.  TODO(peteflorence,oars):
-# investigate if can lessen memory.
-ImplicitBCAgent.run_full_chain_under_gradient = False
-
-langevin_actions_given_obs.num_iterations = 100
-ImplicitBCAgent.fraction_langevin_samples = 1.0
